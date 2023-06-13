@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobigic_test_apk/controller/search_controller/search_controller.dart';
 
@@ -8,10 +9,12 @@ class SearchScreen extends StatelessWidget {
     super.key,
     required this.gridData,
     required this.columns,
+    this.row,
   });
 
   final dynamic gridData;
   final dynamic columns;
+  final dynamic row;
   @override
   Widget build(BuildContext context) {
     return Consumer<SearchBoxController>(
@@ -27,36 +30,66 @@ class SearchScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    TextField(
-                      controller: value.searchController,
-                      onChanged: (data) {
-                        value.onChanged(data);
-                      },
-                      decoration: const InputDecoration(
-                        labelText: 'Search Text',
+                    GridView.builder(
+                      padding: const EdgeInsets.all(10),
+                      shrinkWrap: true,
+                      physics: const BouncingScrollPhysics(),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: row,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
                       ),
-                    ),
-                    const SizedBox(height: 16.0),
-                    ElevatedButton(
-                      onPressed: () {
-                        value.searchWord(value.searchText, gridData, columns);
-                      },
-                      child: const Text('Search'),
-                    ),
-                    const SizedBox(height: 16.0),
-                    value.isTextFound
-                        ? const Text(
-                            'Text found in grid!',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          )
-                        : const Text(
-                            'Text not found',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
+                      itemCount: row * columns,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Center(
+                              child: Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  color: value.serchList.contains(index)
+                                      ? Colors.amber
+                                      : Colors.black,
+                                ),
+                                child: Text(
+                                  gridData[
+                                          index - ((index / row).floor() * row)]
+                                      [(index / row).floor()],
+                                  style: TextStyle(
+                                      fontSize: 20.0,
+                                      color: value.serchList.contains(index)
+                                          ? Colors.white
+                                          : Colors.white),
+                                ),
+                              ),
                             ),
                           ),
+                        );
+                      },
+                    ),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    CupertinoSearchTextField(
+                      onChanged: (data) {
+                        value.searchText = data;
+                      },
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        value.searchButton(gridData, columns, row);
+                      },
+                      child: const Text("Search"),
+                    ),
                   ],
                 ),
               ),
